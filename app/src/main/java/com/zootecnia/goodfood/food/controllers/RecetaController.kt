@@ -27,7 +27,8 @@ class RecetaController @Inject constructor(
     fun observeRecetas(): Flow<List<RecetaDto>> =
         recetaRepository.observeAll().map { list ->
             val measures = measureDao.getAll().associateBy { it.id }
-            list.map { it.toDto(imagesDir, measures) }
+            list.map { it.toDto(imagesDir,
+                measures) }
         }
 
     suspend fun getReceta(id: Long): RecetaDto? {

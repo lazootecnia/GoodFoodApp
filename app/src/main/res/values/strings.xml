@@ -12,6 +12,7 @@
     <string name="category_dressing">Aderezo</string>
     <string name="category_jam">Mermelada</string>
     <string name="category_sauce">Salsa</string>
+    <string name="category_salad">Ensalada</string>
 
     <string name="search_placeholder">Buscar recetas…</string>
     <string name="filter_all">Todas</string>

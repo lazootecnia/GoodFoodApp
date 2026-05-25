@@ -13,5 +13,6 @@ fun localizedCategoryName(key: String): String = when (key) {
     "dressing" -> stringResource(R.string.category_dressing)
     "jam" -> stringResource(R.string.category_jam)
     "sauce" -> stringResource(R.string.category_sauce)
+    "salad" -> stringResource(R.string.category_salad)
     else -> key
 }

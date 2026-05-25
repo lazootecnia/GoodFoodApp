@@ -53,15 +53,23 @@ fun RecetaCard(
         }
     ) {
         Box {
-            AsyncImage(
-                model = receta.imageFilename?.let { File(it) },
-                contentDescription = receta.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
-                    .clip(MaterialTheme.shapes.medium)
-            )
+            val imageModifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .clip(MaterialTheme.shapes.medium)
+            if (receta.imageFilename != null) {
+                AsyncImage(
+                    model = File(receta.imageFilename),
+                    contentDescription = receta.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = imageModifier
+                )
+            } else {
+                RecetaImagePlaceholder(
+                    category = receta.categories.firstOrNull(),
+                    modifier = imageModifier
+                )
+            }
             IconButton(
                 onClick = onToggleFavorite,
                 modifier = Modifier.align(Alignment.TopEnd)

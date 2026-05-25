@@ -50,7 +50,7 @@ fun RecetaWithDetails.toDto(imagesDir: File): RecetaDto {
     return RecetaDto(
         id = receta.id,
         title = receta.title,
-        imageFilename = File(imagesDir, receta.imagePath).absolutePath,
+        imageFilename = receta.imagePath.takeIf { it.isNotEmpty() }?.let { File(imagesDir, it).absolutePath },
         categories = categories.map { it.text },
         ingredients = ingredients
             .sortedBy { it.order }
@@ -65,7 +65,7 @@ fun RecetaWithDetails.toDto(imagesDir: File, measuresById: Map<Long, Measure>): 
     RecetaDto(
         id = receta.id,
         title = receta.title,
-        imageFilename = File(imagesDir, receta.imagePath).absolutePath,
+        imageFilename = receta.imagePath.takeIf { it.isNotEmpty() }?.let { File(imagesDir, it).absolutePath },
         categories = categories.map { it.text },
         ingredients = ingredients
             .sortedBy { it.order }

@@ -53,15 +53,23 @@ fun RecetaDetalleContent(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        AsyncImage(
-            model = receta.imageFilename?.let { File(it) },
-            contentDescription = receta.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(MaterialTheme.shapes.large)
-        )
+        val imageModifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f)
+            .clip(MaterialTheme.shapes.large)
+        if (receta.imageFilename != null) {
+            AsyncImage(
+                model = File(receta.imageFilename),
+                contentDescription = receta.title,
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier
+            )
+        } else {
+            RecetaImagePlaceholder(
+                category = receta.categories.firstOrNull(),
+                modifier = imageModifier
+            )
+        }
 
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
