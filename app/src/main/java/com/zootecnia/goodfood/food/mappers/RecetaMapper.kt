@@ -9,7 +9,7 @@ import com.zootecnia.goodfood.food.entities.Step
 import java.io.File
 
 fun RecetaDto.toEntity(): Receta {
-    val imageName = imageUrl.removePrefix("assets/")
+    val imageName = File(imageUrl).name
     return Receta(
         title = title,
         imagePath = imageName
