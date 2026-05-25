@@ -56,4 +56,10 @@ class RecetaController @Inject constructor(
     fun observeFavoriteIds(): Flow<Set<Long>> = recetaRepository.observeFavoriteIds()
 
     suspend fun toggleFavorite(recetaId: Long) = recetaRepository.toggleFavorite(recetaId)
+
+    fun observeRecetaCount(): Flow<Int> = recetaRepository.observeRecetaCount()
+
+    fun observeFavoriteCount(): Flow<Int> = recetaRepository.observeFavoriteCount()
+
+    fun observeCategoryCount(): Flow<Int> = recetaRepository.observeCategoryCount()
 }

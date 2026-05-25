@@ -21,4 +21,7 @@ interface FavoriteDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorite WHERE receta_id = :recetaId)")
     suspend fun isFavorite(recetaId: Long): Boolean
+
+    @Query("SELECT COUNT(*) FROM favorite")
+    fun observeCount(): Flow<Int>
 }

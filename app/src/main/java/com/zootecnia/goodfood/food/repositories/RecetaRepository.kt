@@ -33,6 +33,12 @@ class RecetaRepository @Inject constructor(
     fun observeFavoriteIds(): Flow<Set<Long>> =
         favoriteDao.observeAllIds().map { it.toSet() }
 
+    fun observeRecetaCount(): Flow<Int> = recetaDao.observeCount()
+
+    fun observeFavoriteCount(): Flow<Int> = favoriteDao.observeCount()
+
+    fun observeCategoryCount(): Flow<Int> = categoryDao.observeCount()
+
     suspend fun toggleFavorite(recetaId: Long) {
         if (favoriteDao.isFavorite(recetaId)) {
             favoriteDao.delete(recetaId)

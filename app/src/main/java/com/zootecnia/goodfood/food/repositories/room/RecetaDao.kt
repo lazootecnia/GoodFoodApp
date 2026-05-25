@@ -39,6 +39,9 @@ interface RecetaDao {
     @Query("SELECT COUNT(*) FROM receta")
     suspend fun count(): Int
 
+    @Query("SELECT COUNT(*) FROM receta")
+    fun observeCount(): Flow<Int>
+
     @Query("DELETE FROM receta")
     suspend fun deleteAll()
 }
