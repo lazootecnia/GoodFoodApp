@@ -46,9 +46,14 @@ class ImportRepository @Inject constructor(
         val tempDir = File(context.cacheDir, "import_temp")
         try {
             extractZip(tempDir)
-            val jsonFile = File(tempDir, "recipes/recipes.json")
-            val recipes = json.decodeFromString<List<RecetaDto>>(jsonFile.readText())
-            importRecipes(recipes, tempDir)
+            val recetariosDir = File(tempDir, "recetarios")
+            val subdirs = recetariosDir.listFiles { f -> f.isDirectory } ?: emptyArray()
+            for (subdir in subdirs) {
+                val jsonFile = File(subdir, "recetario.json")
+                if (!jsonFile.exists()) continue
+                val recipes = json.decodeFromString<List<RecetaDto>>(jsonFile.readText())
+                importRecipes(recipes, subdir)
+            }
         } finally {
             tempDir.deleteRecursively()
         }
@@ -77,7 +82,7 @@ class ImportRepository @Inject constructor(
         }
     }
 
-    private suspend fun importRecipes(recipes: List<RecetaDto>, tempDir: File) {
+    private suspend fun importRecipes(recipes: List<RecetaDto>, recetarioDir: File) {
         database.withTransaction {
             val imagesDir = File(context.filesDir, "recetas/images")
             imagesDir.mkdirs()
@@ -108,10 +113,10 @@ class ImportRepository @Inject constructor(
 
                 stepDao.insertAll(dto.toStepEntities(recetaId))
 
-                val srcImage = dto.imageUrl.removePrefix("assets/")
-                val srcFile = File(tempDir, srcImage)
+                val filename = dto.imageFilename ?: continue
+                val srcFile = File(recetarioDir, "images/$filename")
                 if (srcFile.exists()) {
-                    val destFile = File(imagesDir, srcFile.name)
+                    val destFile = File(imagesDir, filename)
                     srcFile.copyTo(destFile, overwrite = true)
                 }
             }

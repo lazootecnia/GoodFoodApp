@@ -9,10 +9,9 @@ import com.zootecnia.goodfood.food.entities.Step
 import java.io.File
 
 fun RecetaDto.toEntity(): Receta {
-    val imageName = File(imageUrl).name
     return Receta(
         title = title,
-        imagePath = imageName
+        imagePath = imageFilename ?: ""
     )
 }
 
@@ -51,7 +50,7 @@ fun RecetaWithDetails.toDto(imagesDir: File): RecetaDto {
     return RecetaDto(
         id = receta.id,
         title = receta.title,
-        imageUrl = File(imagesDir, receta.imagePath).absolutePath,
+        imageFilename = File(imagesDir, receta.imagePath).absolutePath,
         categories = categories.map { it.text },
         ingredients = ingredients
             .sortedBy { it.order }
@@ -66,7 +65,7 @@ fun RecetaWithDetails.toDto(imagesDir: File, measuresById: Map<Long, Measure>): 
     RecetaDto(
         id = receta.id,
         title = receta.title,
-        imageUrl = File(imagesDir, receta.imagePath).absolutePath,
+        imageFilename = File(imagesDir, receta.imagePath).absolutePath,
         categories = categories.map { it.text },
         ingredients = ingredients
             .sortedBy { it.order }

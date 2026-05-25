@@ -54,7 +54,7 @@ fun RecetaDetalleContent(
             .verticalScroll(rememberScrollState())
     ) {
         AsyncImage(
-            model = File(receta.imageUrl),
+            model = receta.imageFilename?.let { File(it) },
             contentDescription = receta.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier
