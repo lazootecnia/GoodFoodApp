@@ -48,6 +48,8 @@ Estas reglas aplican a todo el código del proyecto. Lo que no esté acá se rig
   ```
 - DTOs son `@Serializable` (kotlinx.serialization). Entidades son `@Entity` (Room).
 - Si un DTO y una entity tienen forma idéntica, igual viven separados; representan capas distintas.
+- **Catálogos compartidos** (`Category`, `Measure`): el mapper hace *upsert por `text`* — busca por texto; si no existe, lo crea; si existe, reutiliza el id. Nunca duplicar registros con el mismo `text`.
+- **Parser de ingredientes** (string → `Ingredient` estructurado): vive en `mappers/` y es **tolerante**. Cuando no logra extraer cantidad o medida, deja esos campos en `null` y conserva el string original completo en `text`. Nunca lanza excepción por un string "raro".
 
 ## 5. Controllers
 
@@ -74,6 +76,7 @@ Estas reglas aplican a todo el código del proyecto. Lo que no esté acá se rig
 - **Adaptive**: usar `WindowSizeClass` para decidir layouts (list-detail en tablet, single-pane en celular).
 - Recursos de texto siempre en `strings.xml` (nunca hardcodeados en composables).
 - Imágenes remotas/locales: **Coil** (`AsyncImage`).
+- **Estados de carga**: usar los componentes nativos de Compose (`CircularProgressIndicator`, `LinearProgressIndicator`). No incluir GIFs ni imágenes propias de loading.
 
 ## 8. ViewModels
 

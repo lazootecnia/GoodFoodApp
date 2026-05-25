@@ -58,6 +58,23 @@ ui/
 ## Flujo de datos en runtime
 
 - La app trabaja **siempre contra Room**.
-- En el primer arranque (Room vacío), se importan recetas desde un **asset JSON embebido** en el APK, mostrando una pantalla de espera.
-- El usuario puede disparar manualmente una **actualización desde el servicio REST**: descarga un ZIP, lo descomprime, parsea el JSON e importa a Room.
-- El servicio REST no se consulta para mostrar datos en pantalla; solo sirve para refrescar la base local.
+- Hay dos fuentes de importación, ambas con el **mismo formato**: un ZIP que contiene el JSON de recetas + las imágenes asociadas.
+  - **Seed** (primer arranque, Room vacío): ZIP embebido en el APK bajo `app/src/main/assets/seed/recipes.zip`. Se muestra una pantalla de espera mientras se importa.
+  - **Actualización**: el usuario la dispara manualmente; se descarga el ZIP desde el servicio REST.
+- Estructura del ZIP:
+  ```
+  recipes.zip
+  ├── images/         -- PNGs referenciadas por las recetas
+  └── recipes/recipes.json
+  ```
+- Pipeline de importación (idéntico para seed y para REST):
+  1. Descomprimir el ZIP a un **directorio temporal** (`cacheDir`).
+  2. Parsear `recipes/recipes.json`. Para cada receta:
+     - Sus `categories` (strings) se buscan en Room por `text`; si no existen, se crean. Mismo patrón para las `measure` que detecte el parser de ingredientes.
+     - Parsear cada string de `ingredients` extrayendo `quantity` y `measure` cuando sea posible. Cuando no se puede parsear (ej. "Mix de semillas"), `quantity` y `measure` quedan nulos y el string original viaja en `text`.
+     - El campo `imageUrl` del JSON (formato `assets/images/001.png`) se traduce a la ruta relativa final dentro de `filesDir/recetas/images/` quitando el prefijo `assets/`.
+  3. Copiar a `filesDir/recetas/images/` **solo las imágenes referenciadas** por alguna receta. Imágenes huérfanas dentro del ZIP (ej. un `loading.gif` no referenciado) se ignoran.
+  4. En cada `Receta`, Room guarda la **ruta relativa** de la imagen dentro de ese directorio (no una URL).
+  5. Borrar el directorio temporal.
+- El servicio REST no se consulta para mostrar datos en pantalla; solo dispara el pipeline para refrescar Room y las imágenes locales.
+- En tiempo de uso, las imágenes se leen desde `filesDir`. Coil acepta `File` / `Uri` para esa ruta.

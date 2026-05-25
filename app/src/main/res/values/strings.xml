@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">GoodFood</string>
+
+    <string name="nav_recetas">Recetas</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <string name="category_breakfast">Desayuno</string>
+    <string name="category_lunch">Almuerzo</string>
+    <string name="category_desserts">Postres</string>
+    <string name="category_glutenFree">Sin TACC</string>
+    <string name="category_dressing">Aderezo</string>
+    <string name="category_jam">Mermelada</string>
+    <string name="category_sauce">Salsa</string>
+
+    <string name="search_placeholder">Buscar recetas…</string>
+    <string name="filter_all">Todas</string>
+
+    <string name="detail_ingredients">Ingredientes</string>
+    <string name="detail_steps">Preparación</string>
+    <string name="detail_placeholder">Seleccioná una receta</string>
+
+    <string name="bootstrap_loading">Cargando recetas…</string>
+
+    <string name="settings_update_button">Actualizar recetas</string>
+    <string name="settings_update_disabled">Disponible próximamente</string>
+    <string name="settings_version">Versión %1$s</string>
 </resources>
