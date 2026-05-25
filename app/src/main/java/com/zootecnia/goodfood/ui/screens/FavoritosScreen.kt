@@ -2,14 +2,19 @@ package com.zootecnia.goodfood.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -30,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.zootecnia.goodfood.R
 import com.zootecnia.goodfood.ui.components.RecetaCard
 import com.zootecnia.goodfood.ui.components.RecetaDetalleContent
+import com.zootecnia.goodfood.ui.components.localizedCategoryName
 import com.zootecnia.goodfood.ui.viewmodels.FavoritosUiState
 import com.zootecnia.goodfood.ui.viewmodels.FavoritosViewModel
 import kotlinx.coroutines.launch
@@ -48,28 +54,20 @@ fun FavoritosScreen(
             }
         }
         is FavoritosUiState.Content -> {
-            if (state.recetas.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.favoritos_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                FavoritosContent(
-                    state = state,
-                    onToggleFavorite = viewModel::onToggleFavorite
-                )
-            }
+            FavoritosContent(
+                state = state,
+                onCategorySelected = viewModel::onCategorySelected,
+                onToggleFavorite = viewModel::onToggleFavorite
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun FavoritosContent(
     state: FavoritosUiState.Content,
+    onCategorySelected: (String?) -> Unit,
     onToggleFavorite: (Long) -> Unit
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
@@ -79,28 +77,73 @@ private fun FavoritosContent(
         navigator = navigator,
         listPane = {
             AnimatedPane {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = state.recetas,
-                        key = { it.id }
-                    ) { receta ->
-                        RecetaCard(
-                            receta = receta,
-                            isSelected = navigator.currentDestination?.contentKey == receta.id,
-                            isFavorite = true,
-                            onClick = {
-                                scope.launch {
-                                    navigator.navigateTo(
-                                        ListDetailPaneScaffoldRole.Detail,
-                                        receta.id
+                Column {
+                    TopAppBar(
+                        title = { Text(stringResource(R.string.nav_favoritos)) }
+                    )
+
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        item {
+                            FilterChip(
+                                selected = state.selectedCategory == null,
+                                onClick = { onCategorySelected(null) },
+                                label = { Text(stringResource(R.string.filter_all)) }
+                            )
+                        }
+                        items(state.categories) { category ->
+                            FilterChip(
+                                selected = state.selectedCategory == category,
+                                onClick = {
+                                    onCategorySelected(
+                                        if (state.selectedCategory == category) null else category
                                     )
-                                }
-                            },
-                            onToggleFavorite = { onToggleFavorite(receta.id) }
-                        )
+                                },
+                                label = { Text(localizedCategoryName(category)) }
+                            )
+                        }
+                    }
+
+                    if (state.recetas.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.favoritos_empty),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(
+                                items = state.recetas,
+                                key = { it.id }
+                            ) { receta ->
+                                RecetaCard(
+                                    receta = receta,
+                                    isSelected = navigator.currentDestination?.contentKey == receta.id,
+                                    isFavorite = receta.id in state.favoriteIds,
+                                    onClick = {
+                                        scope.launch {
+                                            navigator.navigateTo(
+                                                ListDetailPaneScaffoldRole.Detail,
+                                                receta.id
+                                            )
+                                        }
+                                    },
+                                    onToggleFavorite = { onToggleFavorite(receta.id) }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -119,7 +162,7 @@ private fun FavoritosContent(
                         onStepCheckedChange = { index, checked ->
                             checkedSteps = if (checked) checkedSteps + index else checkedSteps - index
                         },
-                        isFavorite = true,
+                        isFavorite = selectedReceta.id in state.favoriteIds,
                         onToggleFavorite = { onToggleFavorite(selectedReceta.id) }
                     )
                 } else {
