@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.zootecnia.goodfood.ui.screens.BootstrapScreen
+import com.zootecnia.goodfood.ui.screens.FavoritosScreen
 import com.zootecnia.goodfood.ui.screens.RecetasScreen
 import com.zootecnia.goodfood.ui.screens.SettingsScreen
 import com.zootecnia.goodfood.ui.viewmodels.BootstrapViewModel
@@ -42,6 +43,7 @@ fun GoodFoodApp() {
     ) {
         when (selectedDestination) {
             Destination.Recetas -> RecetasScreen()
+            Destination.Favoritos -> FavoritosScreen()
             Destination.Settings -> SettingsScreen()
         }
     }

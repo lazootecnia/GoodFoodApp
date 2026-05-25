@@ -52,4 +52,8 @@ class RecetaController @Inject constructor(
     }
 
     suspend fun isFirstLaunch(): Boolean = importRepository.isDbEmpty()
+
+    fun observeFavoriteIds(): Flow<Set<Long>> = recetaRepository.observeFavoriteIds()
+
+    suspend fun toggleFavorite(recetaId: Long) = recetaRepository.toggleFavorite(recetaId)
 }

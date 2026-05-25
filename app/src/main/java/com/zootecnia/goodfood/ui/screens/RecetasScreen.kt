@@ -28,7 +28,10 @@ import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -64,7 +67,8 @@ fun RecetasScreen(
             RecetasContent(
                 state = state,
                 onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                onCategorySelected = viewModel::onCategorySelected
+                onCategorySelected = viewModel::onCategorySelected,
+                onToggleFavorite = viewModel::onToggleFavorite
             )
         }
     }
@@ -75,7 +79,8 @@ fun RecetasScreen(
 private fun RecetasContent(
     state: RecetasUiState.Content,
     onSearchQueryChanged: (String) -> Unit,
-    onCategorySelected: (String?) -> Unit
+    onCategorySelected: (String?) -> Unit,
+    onToggleFavorite: (Long) -> Unit
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
     val scope = rememberCoroutineScope()
@@ -139,6 +144,7 @@ private fun RecetasContent(
                             RecetaCard(
                                 receta = receta,
                                 isSelected = navigator.currentDestination?.contentKey == receta.id,
+                                isFavorite = receta.id in state.favoriteIds,
                                 onClick = {
                                     scope.launch {
                                         navigator.navigateTo(
@@ -146,7 +152,8 @@ private fun RecetasContent(
                                             receta.id
                                         )
                                     }
-                                }
+                                },
+                                onToggleFavorite = { onToggleFavorite(receta.id) }
                             )
                         }
                     }
@@ -158,7 +165,18 @@ private fun RecetasContent(
                 val selectedId = navigator.currentDestination?.contentKey
                 val selectedReceta = state.recetas.find { it.id == selectedId }
                 if (selectedReceta != null) {
-                    RecetaDetalleContent(receta = selectedReceta)
+                    var checkedSteps by remember(selectedReceta.id) {
+                        mutableStateOf(emptySet<Int>())
+                    }
+                    RecetaDetalleContent(
+                        receta = selectedReceta,
+                        checkedSteps = checkedSteps,
+                        onStepCheckedChange = { index, checked ->
+                            checkedSteps = if (checked) checkedSteps + index else checkedSteps - index
+                        },
+                        isFavorite = selectedReceta.id in state.favoriteIds,
+                        onToggleFavorite = { onToggleFavorite(selectedReceta.id) }
+                    )
                 } else {
                     Box(
                         modifier = Modifier.fillMaxSize(),

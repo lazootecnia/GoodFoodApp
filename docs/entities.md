@@ -31,3 +31,6 @@ Entidades del módulo `food`. Los `id` son `Long` autoincrementales gestionados 
 ## Category
 - `id: Long`
 - `text: String`
+
+## Favorite
+- `recetaId: Long` — PK, FK a Receta (ON DELETE CASCADE). No autoGenerate.

@@ -3,6 +3,7 @@ package com.zootecnia.goodfood.food.di
 import android.content.Context
 import androidx.room.Room
 import com.zootecnia.goodfood.food.repositories.room.CategoryDao
+import com.zootecnia.goodfood.food.repositories.room.FavoriteDao
 import com.zootecnia.goodfood.food.repositories.room.GoodFoodDatabase
 import com.zootecnia.goodfood.food.repositories.room.IngredientDao
 import com.zootecnia.goodfood.food.repositories.room.MeasureDao
@@ -24,6 +25,7 @@ object FoodDatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): GoodFoodDatabase =
         Room.databaseBuilder(context, GoodFoodDatabase::class.java, "goodfood.db")
+            .addMigrations(GoodFoodDatabase.MIGRATION_1_2)
             .build()
 
     @Provides
@@ -43,4 +45,7 @@ object FoodDatabaseModule {
 
     @Provides
     fun provideRecetaCategoryDao(db: GoodFoodDatabase): RecetaCategoryDao = db.recetaCategoryDao()
+
+    @Provides
+    fun provideFavoriteDao(db: GoodFoodDatabase): FavoriteDao = db.favoriteDao()
 }

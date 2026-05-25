@@ -14,19 +14,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.zootecnia.goodfood.R
@@ -37,6 +42,10 @@ import java.io.File
 @Composable
 fun RecetaDetalleContent(
     receta: RecetaDto,
+    checkedSteps: Set<Int>,
+    onStepCheckedChange: (Int, Boolean) -> Unit,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -55,10 +64,23 @@ fun RecetaDetalleContent(
         )
 
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = receta.title,
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = receta.title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = null,
+                        tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             if (receta.categories.isNotEmpty()) {
                 FlowRow(
@@ -108,18 +130,30 @@ fun RecetaDetalleContent(
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             receta.steps.forEachIndexed { index, step ->
+                val isChecked = index in checkedSteps
                 Row(
-                    modifier = Modifier.padding(vertical = 6.dp),
+                    modifier = Modifier.padding(vertical = 2.dp),
                     verticalAlignment = Alignment.Top
                 ) {
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = { checked -> onStepCheckedChange(index, checked) },
+                        modifier = Modifier.size(24.dp)
+                    )
                     Text(
                         text = "${index + 1}.",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (isChecked) MaterialTheme.colorScheme.onSurfaceVariant
+                                else MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                     Text(
                         text = step,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            textDecoration = if (isChecked) TextDecoration.LineThrough else TextDecoration.None
+                        ),
+                        color = if (isChecked) MaterialTheme.colorScheme.onSurfaceVariant
+                                else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
